@@ -1,0 +1,3 @@
+admitvault.com {
+    reverse_proxy client:3000
+}

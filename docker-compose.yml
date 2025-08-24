@@ -1,0 +1,25 @@
+services:
+  client:
+    image: registry.digitalocean.com/av-registry/admit-vault-client:latest
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+    depends_on:
+      - client
+
+volumes:
+  caddy_data:
+  caddy_config:
