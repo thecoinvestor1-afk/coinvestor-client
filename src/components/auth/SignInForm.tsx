@@ -229,7 +229,7 @@ export default function SignInForm({
                   type="email"
                   value={email}
                   onChange={handleEmailChange}
-                  placeholder="name@admitvault.com"
+                  placeholder="name@coinvestor.com"
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
