@@ -21,20 +21,21 @@ const ErrorLayoutContent: React.FC<ErrorLayoutProps> = (props) => {
 
     const ActionCards = [
         {
-            title: "Profiles",
+            title: "Dashboard",
             description:
-                "Get inspired by successful profiles and see what truly works.",
-            href: "/profiles",
+                "Return to your portfolio overview and track your earnings.",
+            href: "/dashboard",
         },
         {
-            title: "Contact Us",
+            title: "Support Center",
             description:
-                "Our team is here to offer personalized support and expert guidance.",
-            href: "/contact",
+                "Need help? Our team is ready to guide you with any issue.",
+            href: "/support",
         },
         {
-            title: "Admit Vault Status",
-            description: "99.9% uptime last week - we're here when you need us.",
+            title: "System Status",
+            description:
+                "Real-time uptime monitoring – we keep your investments safe.",
             href: "/status",
         },
     ];
@@ -158,4 +159,3 @@ const ErrorLayout = ({
 };
 
 export default ErrorLayout;
-
