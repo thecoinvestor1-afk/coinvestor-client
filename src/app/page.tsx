@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { ArrowRight, TrendingUp, Shield, Zap, BarChart3, Coins, DollarSign, PieChart } from "lucide-react"
 import { useEffect, useState } from "react"
+import Footer from "@/components/Footer"
 
 // Animated Coin SVG Component
 const AnimatedCoin = ({ className, delay = 0 }: { className?: string; delay?: number }) => (
@@ -61,7 +62,7 @@ export default function Home() {
                 Features
               </Link>
               <Link href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-                Pricing
+                How It Works
               </Link>
               <Link href="#about" className="text-muted-foreground hover:text-foreground transition-colors">
                 About
@@ -88,23 +89,22 @@ export default function Home() {
       <section className="relative z-10 py-20 md:py-32">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto">
-            <Badge variant="secondary" className="mb-6 bg-background text-primary border-primary">
-              <Zap className="w-3 h-3 mr-1" />
-              Next-Gen Crypto Investment
+            <Badge variant="secondary" className="mb-6 bg-background text-yellow-500 border-yellow-500">
+              <Zap className="w-3 h-3 mr-1 text-yellow-500" />
+              Earn 1% Weekly Interest
             </Badge>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Invest in Crypto
+              Buy Coins Today,
               <br />
-              <span className="text-primary">Like a Pro</span>
+              <span className="text-primary">Grow Your Wealth Weekly</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-              Advanced portfolio management, real-time analytics, and institutional-grade security for the modern crypto
-              investor.
+              CoinVest makes crypto investing simple: Buy coins securely and earn <strong>1% interest every week</strong>—steady growth, passive income, zero hassle.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/profiles">
                 <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg">
-                  Start Investing
+                  Start Earning Now
                   <TrendingUp className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
@@ -113,7 +113,7 @@ export default function Home() {
                 size="lg"
                 className="px-8 py-3 text-lg border-border hover:bg-card bg-transparent"
               >
-                Watch Demo
+                Learn More
               </Button>
             </div>
           </div>
@@ -125,20 +125,20 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">$2.4B+</div>
-              <div className="text-muted-foreground">Assets Under Management</div>
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">1% Weekly</div>
+              <div className="text-muted-foreground">Guaranteed Returns</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">150K+</div>
-              <div className="text-muted-foreground">Active Investors</div>
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">50K+</div>
+              <div className="text-muted-foreground">Happy Investors</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">99.9%</div>
-              <div className="text-muted-foreground">Uptime</div>
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">100%</div>
+              <div className="text-muted-foreground">Safe & Secure</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-primary mb-2">24/7</div>
-              <div className="text-muted-foreground">Support</div>
+              <div className="text-muted-foreground">Customer Support</div>
             </div>
           </div>
         </div>
@@ -152,7 +152,7 @@ export default function Home() {
               Why Choose <span className="text-primary">CoinVest</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Professional-grade tools and features designed for serious crypto investors
+              We make investing effortless—buy coins instantly and enjoy weekly interest on your balance.
             </p>
           </div>
 
@@ -162,9 +162,9 @@ export default function Home() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <BarChart3 className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Advanced Analytics</CardTitle>
+                <CardTitle>1% Weekly Growth</CardTitle>
                 <CardDescription>
-                  Real-time portfolio tracking with institutional-grade analytics and reporting tools.
+                  Your money works for you. Earn guaranteed <strong>1% interest every single week</strong>.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -174,9 +174,9 @@ export default function Home() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <Shield className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Bank-Grade Security</CardTitle>
+                <CardTitle>Secure & Reliable</CardTitle>
                 <CardDescription>
-                  Multi-layer security with cold storage, 2FA, and insurance coverage for your digital assets.
+                  Your funds are protected with bank-grade security, 2FA, and cold storage.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -186,9 +186,9 @@ export default function Home() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <PieChart className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Smart Portfolio</CardTitle>
+                <CardTitle>Simple Investing</CardTitle>
                 <CardDescription>
-                  AI-powered portfolio optimization and automated rebalancing for maximum returns.
+                  No complex charts—just buy coins, sit back, and watch your balance grow every week.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -198,9 +198,9 @@ export default function Home() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <DollarSign className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Low Fees</CardTitle>
+                <CardTitle>Instant Withdrawals</CardTitle>
                 <CardDescription>
-                  Competitive trading fees starting at 0.1% with volume discounts for active traders.
+                  Access your profits anytime with fast and hassle-free withdrawals.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -212,7 +212,7 @@ export default function Home() {
                 </div>
                 <CardTitle>Lightning Fast</CardTitle>
                 <CardDescription>
-                  Execute trades in milliseconds with our high-performance matching engine.
+                  Buy and earn in seconds with our ultra-fast platform built for all investors.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -222,9 +222,9 @@ export default function Home() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <TrendingUp className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Market Insights</CardTitle>
+                <CardTitle>Passive Income</CardTitle>
                 <CardDescription>
-                  Expert market analysis, research reports, and trading signals from our team of analysts.
+                  Relax while your coins earn for you—turning your balance into growing wealth.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -237,12 +237,12 @@ export default function Home() {
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Ready to Start Your
+              Start Growing Your
               <br />
-              <span className="text-primary">Crypto Journey?</span>
+              <span className="text-primary">Crypto Wealth Today</span>
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Join thousands of investors who trust CoinVest with their crypto investments.
+              Join thousands of investors earning <strong>1% weekly interest</strong> with CoinVest.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/profiles">
@@ -266,86 +266,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-border/50 bg-card/30 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <Coins className="w-5 h-5 text-primary-foreground" />
-                </div>
-                <span className="text-xl font-bold">CoinVest</span>
-              </div>
-              <p className="text-muted-foreground">
-                Professional cryptocurrency investment platform for modern investors.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Product</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>
-                  <Link href="#" className="hover:text-foreground transition-colors">
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground transition-colors">
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground transition-colors">
-                    API
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>
-                  <Link href="#" className="hover:text-foreground transition-colors">
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground transition-colors">
-                    Careers
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground transition-colors">
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>
-                  <Link href="#" className="hover:text-foreground transition-colors">
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground transition-colors">
-                    Terms
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground transition-colors">
-                    Security
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-border/50 mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 CoinVest. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

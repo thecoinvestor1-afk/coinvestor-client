@@ -1,225 +1,90 @@
 // --core
 import Link from "next/link";
+import { Coins } from "lucide-react";
 
-// --components
-import Logo from "@components/Logo";
-import Image from "next/image";
-
-// --icons
-import logo from "@brand/logo-large-faded-blue.svg";
-import {
-  InstagramLogoIcon,
-  FacebookLogoIcon,
-  XLogoIcon,
-  YoutubeLogoIcon,
-} from "@phosphor-icons/react/dist/ssr";
-
-const Footer = () => {
-  const Dynamic = 500;
+export default function Footer() {
   return (
-    <footer className="container my-10 lg:my-20">
-      <div className="flex flex-col justify-between space-y-8 px-0 sm:px-4 lg:px-8 py-12 space-x-10 lg:flex-row">
-        <div className="flex flex-col items-start lg:w-[25%]">
-          <Logo variant="largeWhite" href="/" />
-          <p className="mt-4 leading-loose ">
-            Explore over {Dynamic} profile vetted admission profiles from
-            top-tier U.S. graduate programs — real stories, real results.
-          </p>
+    <footer className="relative z-10 border-t border-border/50 bg-card/30 backdrop-blur-sm">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid md:grid-cols-4 gap-8">
+          <div>
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                <Coins className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <span className="text-xl font-bold">CoinVest</span>
+            </div>
+            <p className="text-muted-foreground">
+              Professional cryptocurrency investment platform for modern investors.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-4">Product</h3>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>
+                <Link href="#" className="hover:text-foreground transition-colors">
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-foreground transition-colors">
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-foreground transition-colors">
+                  API
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-4">Company</h3>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>
+                <Link href="#" className="hover:text-foreground transition-colors">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-foreground transition-colors">
+                  Careers
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-foreground transition-colors">
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-4">Legal</h3>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>
+                <Link href="#" className="hover:text-foreground transition-colors">
+                  Privacy
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-foreground transition-colors">
+                  Terms
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-foreground transition-colors">
+                  Security
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
-
-        <div className="flex flex-col items-start lg:w-[20%]">
-          <h3 className="text-base font-bold">Feature</h3>
-          <ul className="mt-2 flex flex-col gap-2 text-sm sm:mt-4 sm:gap-3">
-            <li>
-              <Link
-                href="/"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Profiles
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/auth/sign-in"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Packages
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/register"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                1 on 1 Couselling
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/pricing"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Share your profile
-              </Link>
-            </li>
-          </ul>
+        <div className="border-t border-border/50 mt-8 pt-8 text-center text-muted-foreground">
+          <p>&copy; 2024 CoinVest. All rights reserved.</p>
         </div>
-
-        <div className="flex flex-col items-start lg:w-[20%]">
-          <h3 className="text-base font-bold">Legal</h3>
-          <ul className="mt-2 flex flex-col gap-2 text-sm sm:mt-4 sm:gap-3">
-            <li>
-              <Link
-                href="/legal/cookie-policy"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Cookie policy
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/legal/privacy-policy"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Privacy Policy
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/legal/refund-policy"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Refund Policy
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/legal/sub-processors"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Sub processors
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/legal/terms-of-service"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Terms of Service
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/legal/trademark-policy"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Trademark Policy
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/legal/eu-privacy-policy"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                EU & Swiss Privacy Policy
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div className="flex flex-col items-start lg:w-[20%]">
-          <h3 className="text-base font-bold">Company</h3>
-          <ul className="mt-2 flex flex-col gap-2 text-sm sm:mt-4 sm:gap-3">
-            <li>
-              <Link
-                href="/blog"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Blog
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/auth/sign-in"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Login
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/register"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Sign Up
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/about-us"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                About Us
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/contact-us"
-                className=" transition-all duration-300 hover:opacity-100"
-              >
-                Contact Us
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div className="flex flex-col items-start gap-2 ">
-          <Link
-            href="https://www.instagram.com/admit-vault_com/"
-            className="rounded-full transition-all duration-300 hover:opacity-80"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <XLogoIcon weight="fill" color="#ffffff" size={28} />
-          </Link>
-          <Link
-            href="https://www.facebook.com/people/admit-vault/61566887740917/"
-            className="rounded-full transition-all duration-300 hover:opacity-80"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <YoutubeLogoIcon weight="fill" color="#ffffff" size={30} />
-          </Link>
-          <Link
-            href="https://www.linkedin.com/company/admit-vault"
-            className="rounded-full transition-all duration-300 hover:opacity-80"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FacebookLogoIcon weight="fill" color="#ffffff" size={30} />
-          </Link>
-          <Link
-            href="https://www.youtube.com/@admit-vault"
-            className="rounded-full transition-all duration-300 hover:opacity-80"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <InstagramLogoIcon weight="fill" color="#ffffff" size={30} />
-          </Link>
-        </div>
-      </div>
-      <div className="relative mt-6 h-24 w-full md:h-48 lg:mt-10 lg:h-72">
-        <Image
-          src={logo}
-          alt="Admit Vault's Logo"
-          priority={false}
-          sizes="100%"
-          fill
-          className="object-contain"
-        />
       </div>
     </footer>
   );
 };
 
-export default Footer;
+

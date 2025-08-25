@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
 //--components
-import Logo from "@components/Logo";
+// import Logo from "@components/Logo";
 import { Label } from "@components/ui/label";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
