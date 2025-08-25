@@ -169,7 +169,7 @@
 }
 
 .animate-coin-fall {
-  animation: coinFall 8s linear infinite;
+  animation: coinFall 12s linear infinite;
   will-change: transform, opacity;
 }
 
