@@ -1,6 +1,6 @@
 services:
   client:
-    image: registry.digitalocean.com/av-registry/admit-vault-client:latest
+    image: registry.digitalocean.com/av-registry/coinvestor-client:latest
     ports:
       - "3000:3000"
     env_file:
