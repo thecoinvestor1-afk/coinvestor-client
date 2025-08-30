@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { Phone, Upload, Camera, RotateCcw, Check, FileText, Eye, EyeOff } from "lucide-react"
 import { toast, Toaster } from "sonner"
+import { usePhoneAuth } from "@/hooks/usePhoneAuth"
 
 export default function SignInDocumentsFlow() {
     const [currentStep, setCurrentStep] = useState(1)
@@ -17,7 +18,9 @@ export default function SignInDocumentsFlow() {
     const [showForgotPassword, setShowForgotPassword] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-    
+
+    const { sendOTP, verifyOTP, loading: phoneLoading } = usePhoneAuth();
+
     // Form data
     const [formData, setFormData] = useState({
         name: '',
@@ -27,32 +30,32 @@ export default function SignInDocumentsFlow() {
         confirmPassword: '',
         otp: ''
     })
-    
+
     // Documents state
     const [adhaarFile, setAdhaarFile] = useState(null)
     const [selfieCapture, setSelfieCapture] = useState(null)
     const [cameraStream, setCameraStream] = useState(null)
     const [showCamera, setShowCamera] = useState(false)
     const [faceDetected, setFaceDetected] = useState(false)
-    
+
     // Validation errors
     const [errors, setErrors] = useState({})
-    
+
     const videoRef = useRef(null)
     const canvasRef = useRef(null)
     const fileInputRef = useRef(null)
-    
+
     // STRICT Validation functions
     const validateStep1 = () => {
         const newErrors = {}
         let isValid = true
-        
+
         // Check each field strictly
         if (!formData.name || !formData.name.trim()) {
             newErrors.name = 'Full name is required'
             isValid = false
         }
-        
+
         if (!formData.email || !formData.email.trim()) {
             newErrors.email = 'Email is required'
             isValid = false
@@ -60,7 +63,7 @@ export default function SignInDocumentsFlow() {
             newErrors.email = 'Please enter a valid email'
             isValid = false
         }
-        
+
         if (!formData.phone || !formData.phone.trim()) {
             newErrors.phone = 'Phone number is required'
             isValid = false
@@ -68,7 +71,7 @@ export default function SignInDocumentsFlow() {
             newErrors.phone = 'Please enter a valid phone number'
             isValid = false
         }
-        
+
         if (!formData.password || formData.password.length === 0) {
             newErrors.password = 'Password is required'
             isValid = false
@@ -76,7 +79,7 @@ export default function SignInDocumentsFlow() {
             newErrors.password = 'Password must be at least 6 characters'
             isValid = false
         }
-        
+
         if (!formData.confirmPassword || formData.confirmPassword.length === 0) {
             newErrors.confirmPassword = 'Please confirm your password'
             isValid = false
@@ -84,11 +87,11 @@ export default function SignInDocumentsFlow() {
             newErrors.confirmPassword = 'Passwords do not match'
             isValid = false
         }
-        
+
         setErrors(newErrors)
         return isValid
     }
-    
+
     const validateStep2 = () => {
         if (!formData.otp || !formData.otp.trim()) {
             toast.error('Please enter the OTP')
@@ -104,7 +107,7 @@ export default function SignInDocumentsFlow() {
         }
         return true
     }
-    
+
     const validateStep3 = () => {
         let isValid = true
         if (!adhaarFile) {
@@ -127,51 +130,47 @@ export default function SignInDocumentsFlow() {
     }
 
     const handleSendOTP = async () => {
-        // FORCE validation check
         if (!validateStep1()) {
-            // Show which fields are missing
             const missingFields = []
             if (!formData.name.trim()) missingFields.push('Full Name')
             if (!formData.email.trim()) missingFields.push('Email')
             if (!formData.phone.trim()) missingFields.push('Phone')
             if (!formData.password) missingFields.push('Password')
             if (!formData.confirmPassword) missingFields.push('Confirm Password')
-            
+
             toast.error(`Please fill in: ${missingFields.join(', ')}`)
-            return // BLOCK progression
+            return
         }
-        
-        setIsLoading(true)
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 1500))
-            toast.success('OTP sent successfully!')
-            setCurrentStep(2) // Only proceed if validation passes
-        } catch (error) {
-            toast.error('Failed to send OTP. Please try again.')
+
+        // Format phone number
+        let phoneNumber = formData.phone.trim();
+        if (!phoneNumber.startsWith('+')) {
+            phoneNumber = '+91' + phoneNumber; // Adjust country code
         }
-        setIsLoading(false)
+
+        const result = await sendOTP(phoneNumber);
+
+        if (result.success) {
+            toast.success('OTP sent to your phone number!')
+            setCurrentStep(2)
+        } else {
+            toast.error(result.error || 'Failed to send OTP. Please try again.')
+        }
     }
 
     const handleVerifyOTP = async () => {
-        // FORCE OTP validation
-        if (!formData.otp.trim()) {
-            toast.error('Please enter the OTP')
-            return // BLOCK progression
+        if (!validateStep2()) {
+            return
         }
-        if (formData.otp.length !== 6) {
-            toast.error('OTP must be exactly 6 digits')
-            return // BLOCK progression
-        }
-        
-        setIsLoading(true)
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 1500))
+
+        const result = await verifyOTP(formData.phone, formData.otp);
+
+        if (result.success) {
             toast.success('Phone number verified!')
-            setCurrentStep(3) // Only proceed if validation passes
-        } catch (error) {
-            toast.error('Invalid OTP. Please try again.')
+            setCurrentStep(3)
+        } else {
+            toast.error(result.error || 'Invalid OTP. Please try again.')
         }
-        setIsLoading(false)
     }
 
     const handleForgotPassword = async () => {
@@ -179,7 +178,7 @@ export default function SignInDocumentsFlow() {
             toast.error('Please enter your phone number')
             return
         }
-        
+
         setIsLoading(true)
         try {
             await new Promise((resolve) => setTimeout(resolve, 1500))
@@ -206,18 +205,18 @@ export default function SignInDocumentsFlow() {
     // Camera functions
     const startCamera = async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
                     facingMode: 'user',
                     width: { ideal: 640 },
                     height: { ideal: 480 }
                 },
-                audio: false 
+                audio: false
             })
-            
+
             setCameraStream(stream)
             setShowCamera(true)
-            
+
             if (videoRef.current) {
                 videoRef.current.srcObject = stream
                 videoRef.current.onloadedmetadata = () => {
@@ -246,7 +245,7 @@ export default function SignInDocumentsFlow() {
     const capturePhoto = () => {
         const canvas = canvasRef.current
         const video = videoRef.current
-        
+
         if (!canvas || !video || video.videoWidth === 0 || video.readyState !== 4) {
             toast.error('Camera not ready. Please wait a moment and try again.')
             return
@@ -255,12 +254,12 @@ export default function SignInDocumentsFlow() {
         // Set canvas dimensions to match video
         canvas.width = video.videoWidth
         canvas.height = video.videoHeight
-        
+
         // Draw the video frame to canvas
         const ctx = canvas.getContext('2d')
         if (ctx) {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-            
+
             // Convert canvas to blob
             canvas.toBlob((blob) => {
                 if (blob) {
@@ -306,7 +305,7 @@ export default function SignInDocumentsFlow() {
             toast.error('Please take a selfie for verification first')
             return // BLOCK progression
         }
-        
+
         setIsLoading(true)
         try {
             await new Promise((resolve) => setTimeout(resolve, 2000))
@@ -351,12 +350,12 @@ export default function SignInDocumentsFlow() {
                         </span>
                     </div>
                     <Progress value={progressPercentage} className="h-2" />
-                    
+
                     {/* Step Navigation */}
                     {currentStep > 1 && (
                         <div className="flex justify-center mt-4">
-                            <Button 
-                                variant="ghost" 
+                            <Button
+                                variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentStep(currentStep - 1)}
                                 className="text-muted-foreground hover:text-foreground"
@@ -387,13 +386,13 @@ export default function SignInDocumentsFlow() {
                                 <div className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="forgot-phone">Phone Number</Label>
-                                        <Input 
-                                            id="forgot-phone" 
-                                            type="tel" 
+                                        <Input
+                                            id="forgot-phone"
+                                            type="tel"
                                             placeholder="+1 (555) 000-0000"
                                             value={formData.phone}
                                             onChange={(e) => handleInputChange('phone', e.target.value)}
-                                            className="bg-input border-border" 
+                                            className="bg-input border-border"
                                         />
                                     </div>
                                     <Button
@@ -403,9 +402,9 @@ export default function SignInDocumentsFlow() {
                                     >
                                         {isLoading ? "Sending..." : "Send Reset Code"}
                                     </Button>
-                                    <Button 
-                                        variant="ghost" 
-                                        onClick={() => setShowForgotPassword(false)} 
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => setShowForgotPassword(false)}
                                         className="w-full text-muted-foreground"
                                     >
                                         Back to Sign In
@@ -415,9 +414,9 @@ export default function SignInDocumentsFlow() {
                                 <div className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="name">Full Name</Label>
-                                        <Input 
-                                            id="name" 
-                                            type="text" 
+                                        <Input
+                                            id="name"
+                                            type="text"
                                             placeholder="Enter your full name"
                                             value={formData.name}
                                             onChange={(e) => handleInputChange('name', e.target.value)}
@@ -428,9 +427,9 @@ export default function SignInDocumentsFlow() {
 
                                     <div className="space-y-2">
                                         <Label htmlFor="email">Email Address</Label>
-                                        <Input 
-                                            id="email" 
-                                            type="email" 
+                                        <Input
+                                            id="email"
+                                            type="email"
                                             placeholder="Enter your email"
                                             value={formData.email}
                                             onChange={(e) => handleInputChange('email', e.target.value)}
@@ -441,9 +440,9 @@ export default function SignInDocumentsFlow() {
 
                                     <div className="space-y-2">
                                         <Label htmlFor="phone">Phone Number</Label>
-                                        <Input 
-                                            id="phone" 
-                                            type="tel" 
+                                        <Input
+                                            id="phone"
+                                            type="tel"
                                             placeholder="+1 (555) 000-0000"
                                             value={formData.phone}
                                             onChange={(e) => handleInputChange('phone', e.target.value)}
@@ -455,8 +454,8 @@ export default function SignInDocumentsFlow() {
                                     <div className="space-y-2">
                                         <Label htmlFor="password">Password</Label>
                                         <div className="relative">
-                                            <Input 
-                                                id="password" 
+                                            <Input
+                                                id="password"
                                                 type={showPassword ? "text" : "password"}
                                                 placeholder="Create a password"
                                                 value={formData.password}
@@ -479,8 +478,8 @@ export default function SignInDocumentsFlow() {
                                     <div className="space-y-2">
                                         <Label htmlFor="confirmPassword">Confirm Password</Label>
                                         <div className="relative">
-                                            <Input 
-                                                id="confirmPassword" 
+                                            <Input
+                                                id="confirmPassword"
                                                 type={showConfirmPassword ? "text" : "password"}
                                                 placeholder="Confirm your password"
                                                 value={formData.confirmPassword}
@@ -560,9 +559,9 @@ export default function SignInDocumentsFlow() {
                                         </Link>
                                     </div>
                                     <div className="text-center">
-                                        <Button 
-                                            variant="ghost" 
-                                            onClick={() => setShowForgotPassword(true)} 
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => setShowForgotPassword(true)}
                                             className="text-sm text-muted-foreground hover:text-primary p-0"
                                         >
                                             Forgot your password?
@@ -638,7 +637,7 @@ export default function SignInDocumentsFlow() {
                                 <Label className="text-sm font-medium">Aadhaar Card</Label>
                                 <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
                                     {!adhaarFile ? (
-                                        <div 
+                                        <div
                                             className="cursor-pointer"
                                             onClick={() => fileInputRef.current?.click()}
                                         >
@@ -652,8 +651,8 @@ export default function SignInDocumentsFlow() {
                                                 <Check className="w-5 h-5 text-green-500" />
                                                 <span className="text-sm text-foreground">{adhaarFile.name}</span>
                                             </div>
-                                            <Button 
-                                                variant="ghost" 
+                                            <Button
+                                                variant="ghost"
                                                 size="sm"
                                                 onClick={() => setAdhaarFile(null)}
                                             >
@@ -676,12 +675,12 @@ export default function SignInDocumentsFlow() {
                             {/* Selfie Capture */}
                             <div className="space-y-3">
                                 <Label className="text-sm font-medium">Live Photo (Selfie)</Label>
-                                
+
                                 {!showCamera && !selfieCapture && (
                                     <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
                                         <Camera className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                                         <p className="text-sm text-muted-foreground mb-3">Take a live selfie for verification</p>
-                                        <Button 
+                                        <Button
                                             onClick={startCamera}
                                             className="bg-primary hover:bg-primary/90"
                                         >
@@ -694,19 +693,18 @@ export default function SignInDocumentsFlow() {
                                 {showCamera && (
                                     <div className="space-y-4">
                                         <div className="relative rounded-lg overflow-hidden bg-black">
-                                            <video 
-                                                ref={videoRef} 
-                                                autoPlay 
+                                            <video
+                                                ref={videoRef}
+                                                autoPlay
                                                 playsInline
-                                                muted 
+                                                muted
                                                 className="w-full h-64 object-cover"
                                             />
                                             {/* Face detection overlay */}
                                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                                <div 
-                                                    className={`w-48 h-48 border-2 rounded-full transition-colors duration-300 ${
-                                                        faceDetected ? 'border-green-500 shadow-green-500/50 shadow-lg' : 'border-primary'
-                                                    }`}
+                                                <div
+                                                    className={`w-48 h-48 border-2 rounded-full transition-colors duration-300 ${faceDetected ? 'border-green-500 shadow-green-500/50 shadow-lg' : 'border-primary'
+                                                        }`}
                                                 >
                                                     {faceDetected && (
                                                         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
@@ -719,13 +717,12 @@ export default function SignInDocumentsFlow() {
                                             </div>
                                         </div>
                                         <div className="flex gap-3 justify-center">
-                                            <Button 
-                                                onClick={capturePhoto} 
-                                                className={`transition-colors duration-200 ${
-                                                    faceDetected 
-                                                        ? 'bg-green-600 hover:bg-green-700' 
-                                                        : 'bg-primary hover:bg-primary/90'
-                                                }`}
+                                            <Button
+                                                onClick={capturePhoto}
+                                                className={`transition-colors duration-200 ${faceDetected
+                                                    ? 'bg-green-600 hover:bg-green-700'
+                                                    : 'bg-primary hover:bg-primary/90'
+                                                    }`}
                                                 disabled={!cameraStream}
                                             >
                                                 <Camera className="w-4 h-4 mr-2" />
@@ -746,8 +743,8 @@ export default function SignInDocumentsFlow() {
                                 {selfieCapture && (
                                     <div className="space-y-4">
                                         <div className="relative rounded-lg overflow-hidden">
-                                            <img 
-                                                src={URL.createObjectURL(selfieCapture)} 
+                                            <img
+                                                src={URL.createObjectURL(selfieCapture)}
                                                 alt="Captured selfie"
                                                 className="w-full h-64 object-cover"
                                             />
@@ -769,7 +766,7 @@ export default function SignInDocumentsFlow() {
                             <canvas ref={canvasRef} className="hidden" />
 
                             {adhaarFile && selfieCapture && (
-                                <Button 
+                                <Button
                                     onClick={handleSubmitDocuments}
                                     disabled={isLoading}
                                     className="w-full bg-primary hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed mt-6"
@@ -777,13 +774,13 @@ export default function SignInDocumentsFlow() {
                                     {isLoading ? "Processing..." : "Submit Documents"}
                                 </Button>
                             )}
-                            
+
                             {(!adhaarFile || !selfieCapture) && (
                                 <div className="w-full mt-6 p-3 bg-muted/50 rounded-lg text-center">
                                     <p className="text-sm text-muted-foreground">
                                         {!adhaarFile && !selfieCapture ? 'Upload Aadhaar and take selfie to continue' :
-                                         !adhaarFile ? 'Upload Aadhaar to continue' :
-                                         'Take selfie to continue'}
+                                            !adhaarFile ? 'Upload Aadhaar to continue' :
+                                                'Take selfie to continue'}
                                     </p>
                                 </div>
                             )}
@@ -808,7 +805,7 @@ export default function SignInDocumentsFlow() {
                                     We'll review your documents and notify you once verification is complete. This usually takes 24-48 hours.
                                 </p>
                             </div>
-                            
+
                             <Button className="w-full bg-primary hover:bg-primary/90">
                                 Continue to Dashboard
                             </Button>
@@ -816,9 +813,9 @@ export default function SignInDocumentsFlow() {
                     </>
                 )}
             </Card>
-            
+
             {/* Sonner Toaster */}
-            <Toaster 
+            <Toaster
                 position="top-center"
                 toastOptions={{
                     style: {
