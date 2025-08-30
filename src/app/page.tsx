@@ -45,10 +45,7 @@ const CoinBackground = () => {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background relative">
-      <CoinBackground />
-
-      {/* Header */}
+    <div className="min-h-screen bg-background relative bg-custom bg-fixed bg-cover bg-center bg-no-repeat w-full">      {/* Header */}
       <Navigation />
 
       {/* Hero Section */}
