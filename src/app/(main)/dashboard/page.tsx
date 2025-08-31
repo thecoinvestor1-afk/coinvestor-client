@@ -240,7 +240,7 @@ const Dashboard = () => {
                                             <Timer className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-xs sm:text-sm text-gray-600 mb-1">Next Maturity</p>
+                                            <p className="text-xs sm:text-sm opacity-50 mb-1">Next Maturity</p>
                                             <p className="text-base sm:text-lg lg:text-xl font-bold text-primary">
                                                 {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
                                             </p>
@@ -255,7 +255,7 @@ const Dashboard = () => {
                                             <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Balance</p>
+                                            <p className="text-xs sm:text-sm opacity-50 mb-1">Total Balance</p>
                                             <div className="flex items-center gap-2">
                                                 <p className="text-base sm:text-lg lg:text-xl font-bold text-green-600 truncate">
                                                     {showBalance ? formatCurrency(userProfile.totalValue) : '****'}
@@ -381,7 +381,7 @@ const Dashboard = () => {
                                                     </div>
                                                     <div className="min-w-0">
                                                         <p className="font-medium text-sm sm:text-base">{investment.amount} Coins</p>
-                                                        <p className="text-xs sm:text-sm text-gray-600">{investment.daysLeft} days remaining</p>
+                                                        <p className="text-xs sm:text-sm opacity-50">{investment.daysLeft} days remaining</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center justify-between sm:justify-end sm:text-right gap-4">
@@ -429,13 +429,13 @@ const Dashboard = () => {
                                                         </div>
                                                         <div className="flex justify-between items-center">
                                                             <span>Expected Returns (5%):</span>
-                                                            <span className="font-semibold text-green-600">
+                                                            <span className="font-semibold text-green-400">
                                                                 {formatCurrency(parseInt(coinAmount) * 1.05)}
                                                             </span>
                                                         </div>
                                                         <div className="flex justify-between items-center mt-2 pt-2 border-t">
                                                             <span className="font-medium">Maturity (90 days):</span>
-                                                            <span className="font-bold text-green-600">
+                                                            <span className="font-bold text-green-400">
                                                                 {formatCurrency(parseInt(coinAmount) * 1.05)}
                                                             </span>
                                                         </div>
@@ -563,19 +563,19 @@ const Dashboard = () => {
                                                 <h4 className="font-medium mb-3 text-sm sm:text-base">Bank Account Details</h4>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                                                     <div>
-                                                        <span className="text-gray-600">Account Name:</span>
+                                                        <span className="opacity-50">Account Name:</span>
                                                         <p className="font-medium">InvestCoins Private Limited</p>
                                                     </div>
                                                     <div>
-                                                        <span className="text-gray-600">Account Number:</span>
+                                                        <span className="opacity-50">Account Number:</span>
                                                         <p className="font-medium">1234567890123456</p>
                                                     </div>
                                                     <div>
-                                                        <span className="text-gray-600">IFSC Code:</span>
+                                                        <span className="opacity-50">IFSC Code:</span>
                                                         <p className="font-medium">HDFC0001234</p>
                                                     </div>
                                                     <div>
-                                                        <span className="text-gray-600">Bank Name:</span>
+                                                        <span className="opacity-50">Bank Name:</span>
                                                         <p className="font-medium">HDFC Bank</p>
                                                     </div>
                                                 </div>
@@ -585,7 +585,7 @@ const Dashboard = () => {
                                         <div className="space-y-4">
                                             <div className="p-3 sm:p-4 border-2 border-dashed border-gray-300 rounded-lg text-center">
                                                 <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mx-auto mb-2" />
-                                                <p className="text-xs sm:text-sm text-gray-600 mb-2">Upload Payment Proof</p>
+                                                <p className="text-xs sm:text-sm opacity-50 mb-2">Upload Payment Proof</p>
                                                 <input
                                                     type="file"
                                                     accept="image/*,.pdf"
@@ -604,7 +604,7 @@ const Dashboard = () => {
                                                 </Label>
                                             </div>
                                             <div className="text-center">
-                                                <p className="text-xs sm:text-sm text-gray-600">Amount: {formatCurrency(parseInt(coinAmount || '0'))}</p>
+                                                <p className="text-xs sm:text-sm opacity-50">Amount: {formatCurrency(parseInt(coinAmount || '0'))}</p>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -639,12 +639,12 @@ const Dashboard = () => {
                                                                     {getStatusIcon(investment.status)}
                                                                     <span className="ml-1 capitalize text-xs">{investment.status}</span>
                                                                 </Badge>
-                                                                <span className="text-xs sm:text-sm text-gray-600">
+                                                                <span className="text-xs sm:text-sm opacity-50">
                                                                     ID: #{investment.id}
                                                                 </span>
                                                             </div>
                                                             <h3 className="font-semibold text-base sm:text-lg">{investment.amount} Coins Investment</h3>
-                                                            <p className="text-xs sm:text-sm text-gray-600">
+                                                            <p className="text-xs sm:text-sm opacity-50">
                                                                 Started: {investment.startDate.toLocaleDateString()}
                                                             </p>
                                                         </div>
@@ -652,17 +652,17 @@ const Dashboard = () => {
 
                                                     <div className="grid grid-cols-3 gap-2 sm:gap-4">
                                                         <div className="text-center p-2 sm:p-3 bg-gray-50 rounded-lg">
-                                                            <p className="text-xs text-gray-600">Days Left</p>
-                                                            <p className="font-bold text-sm sm:text-lg">{investment.daysLeft}</p>
+                                                            <p className="text-xs text-black opacity-70">Days Left</p>
+                                                            <p className="font-bold text-sm text-black sm:text-lg">{investment.daysLeft}</p>
                                                         </div>
-                                                        <div className="text-center p-2 sm:p-3 bg-green-50 rounded-lg">
-                                                            <p className="text-xs text-gray-600">Current Value</p>
+                                                        <div className="text-center p-0 sm:p-3 bg-green-50 rounded-lg">
+                                                            <p className="text-xs text-black opacity-70">Current Value</p>
                                                             <p className="font-bold text-sm sm:text-lg text-green-600">
                                                                 {formatCurrency(investment.currentValue)}
                                                             </p>
                                                         </div>
-                                                        <div className="text-center p-2 sm:p-3 bg-blue-50 rounded-lg">
-                                                            <p className="text-xs text-gray-600">Projected Returns</p>
+                                                        <div className="text-center p-0 sm:p-3 bg-blue-50 rounded-lg">
+                                                            <p className="text-xs text-black opacity-70">Projected Returns</p>
                                                             <p className="font-bold text-sm sm:text-lg text-primary">
                                                                 {formatCurrency(investment.projectedValue)}
                                                             </p>
@@ -676,7 +676,7 @@ const Dashboard = () => {
                                                                 style={{ width: `${((90 - investment.daysLeft) / 90) * 100}%` }}
                                                             />
                                                         </div>
-                                                        <div className="flex justify-between text-xs text-gray-600">
+                                                        <div className="flex justify-between text-xs opacity-50">
                                                             <span>Progress</span>
                                                             <span>{Math.round(((90 - investment.daysLeft) / 90) * 100)}% complete</span>
                                                         </div>
@@ -802,7 +802,7 @@ const Dashboard = () => {
                                                     <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
                                                     <div className="min-w-0">
                                                         <p className="font-medium text-sm sm:text-base">Identity Proof</p>
-                                                        <p className="text-xs sm:text-sm text-gray-600 truncate">Aadhar, PAN, or Passport</p>
+                                                        <p className="text-xs sm:text-sm opacity-50 truncate">Aadhar, PAN, or Passport</p>
                                                     </div>
                                                 </div>
                                                 <Badge className={`${getStatusColor(userProfile.documentsVerified)} flex-shrink-0`}>
