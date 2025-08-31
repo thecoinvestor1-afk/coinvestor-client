@@ -706,7 +706,7 @@ const Dashboard = () => {
                                             value={withdrawalAmount}
                                             onChange={(e) => setWithdrawalAmount(e.target.value)}
                                         />
-                                        <p className="text-xs sm:text-sm text-gray-600">
+                                        <p className="text-xs sm:text-sm opacity-60">
                                             Available balance: {formatCurrency(userProfile.totalValue)}
                                         </p>
                                     </div>
@@ -714,9 +714,9 @@ const Dashboard = () => {
                                     <div className="p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                                         <h4 className="font-medium text-yellow-800 mb-2 text-sm sm:text-base">Important Notice</h4>
                                         <ul className="text-xs sm:text-sm text-yellow-700 space-y-1">
+                                            <li>• Minimum withdrawal amount: {formatCurrency(100)}</li>
                                             <li>• Withdrawal requests require admin approval</li>
                                             <li>• Processing time: 3-5 business days</li>
-                                            <li>• Early withdrawal may affect returns</li>
                                         </ul>
                                     </div>
                                 </CardContent>
@@ -725,7 +725,7 @@ const Dashboard = () => {
                                         <AlertDialogTrigger asChild>
                                             <Button
                                                 className="w-full bg-primary"
-                                                disabled={!withdrawalAmount}
+                                                disabled={!withdrawalAmount || parseInt(withdrawalAmount || '0') < 100}
                                             >
                                                 Submit Withdrawal Request
                                             </Button>
