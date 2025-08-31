@@ -195,3 +195,7 @@
   animation: coinFallSlow 12s linear infinite;
   will-change: transform, opacity;
 }
+
+.bg-custom {
+  background-image: url('/static/images/other/bg.jpg');
+}

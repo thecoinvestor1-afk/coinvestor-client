@@ -1,54 +1,15 @@
-"use client"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { ArrowRight, TrendingUp, Shield, Zap, BarChart3, DollarSign, PieChart } from "lucide-react"
-import { useEffect, useState } from "react"
 import Footer from "@/components/Footer"
 import Navigation from "@/components/Navigation"
 
-// Animated Coin SVG Component
-const AnimatedCoin = ({ className, delay = 0 }: { className?: string; delay?: number }) => (
-  <div className={`absolute ${className}`} style={{ animationDelay: `${delay}s` }}>
-    <svg width="40" height="40" viewBox="0 0 40 40" className="animate-coin-fall text-primary" fill="currentColor">
-      <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="2" fill="none" />
-      <text x="20" y="26" textAnchor="middle" className="text-xs font-bold fill-current">
-        ₿
-      </text>
-    </svg>
-  </div>
-)
-
-// Floating Coin Background
-const CoinBackground = () => {
-  const [coins, setCoins] = useState<Array<{ id: number; left: string; delay: number }>>([])
-
-  useEffect(() => {
-    const coinArray = Array.from({ length: 8 }, (_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      delay: Math.random() * 8,
-    }))
-    setCoins(coinArray)
-  }, [])
-
-  return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {coins.map((coin) => (
-        <AnimatedCoin key={coin.id} className={`animate-coin-fall`} delay={coin.delay} />
-      ))}
-    </div>
-  )
-}
-
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background relative">
-      <CoinBackground />
-
-      {/* Header */}
+    <div className="min-h-screen bg-background relative bg-custom bg-fixed bg-cover bg-center bg-no-repeat w-full">      {/* Header */}
       <Navigation />
 
       {/* Hero Section */}
