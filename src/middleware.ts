@@ -1,35 +1,75 @@
-// import { betterFetch } from "@better-fetch/fetch";
-// import { Session } from "better-auth/types";
-import {  NextResponse } from "next/server";
+import { betterFetch } from "@better-fetch/fetch";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function middleware() {
-//   const { data: session } = await betterFetch<Session>(
-//     "/api/auth/get-session",
-//     {
-//       baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
-//       headers: {
-//         cookie: request.headers.get("cookie") || "", // Forward the cookies from the request
-//       },
-//     },
-//   );
+export async function middleware(request: NextRequest) {
+  // try {
+  //   // Get session from Better Auth
+  //   const { data: session, error } = await betterFetch<{
+  //     session: any;
+  //     user: any;
+  //   }>(
+  //     "/api/auth/get-session",
+  //     {
+  //       baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+  //       headers: {
+  //         cookie: request.headers.get("cookie") || "",
+  //       },
+  //     },
+  //   );
 
-//   // if the session is found and the request is for the auth page, redirect to /me
-//   if (session && request.url.includes("/auth")) {
-//     return NextResponse.redirect(new URL("/profile", request.url));
-//   }
+  //   const url = request.nextUrl.clone();
+  //   const pathname = url.pathname;
 
-//   // if the session is not found and the request is for /me or /auth, redirect to /auth/sign-in
-//   if (
-//     !session &&
-//     !request.url.includes("/auth/sign-in") &&
-//     !request.url.includes("/auth/sign-up")
-//   ) {
-//     return NextResponse.redirect(new URL("/auth/sign-in", request.url));
-//   }
+  //   // If user has a valid session (Better Auth returns session object with user property)
+  //   if (session?.user && session?.session) {
+  //     // Check if user is trying to access auth pages when already logged in
+  //     if (pathname.startsWith('/auth/') || pathname === '/sign-up' || pathname === '/sign-in') {
+  //       // Redirect authenticated users away from auth pages to /upload
+  //       url.pathname = '/upload';
+  //       return NextResponse.redirect(url);
+  //     }
+      
+  //     // Allow access to protected routes
+  //     return NextResponse.next();
+  //   }
 
-  return NextResponse.next();
+  //   // If no session (user not authenticated)
+  //   // Allow access to auth pages
+  //   if (pathname.startsWith('/auth/') || pathname === '/sign-up' || pathname === '/sign-in') {
+  //     return NextResponse.next();
+  //   }
+
+  //   // Redirect unauthenticated users trying to access protected routes to sign-in
+  //   if (pathname === '/upload' || pathname === '/dashboard' || pathname.startsWith('/profile')) {
+  //     url.pathname = '/sign-in';
+  //     return NextResponse.redirect(url);
+  //   }
+
+  //   // Allow access to public routes (home, about, etc.)
+  //   return NextResponse.next();
+
+  // } catch (error) {
+  //   console.error('Middleware error:', error);
+  //   // On error, redirect to sign-in as fallback
+  //   if (!request.nextUrl.pathname.startsWith('/auth/') && 
+  //       request.nextUrl.pathname !== '/sign-in' && 
+  //       request.nextUrl.pathname !== '/sign-up') {
+  //     const url = request.nextUrl.clone();
+  //     url.pathname = '/sign-in';
+  //     return NextResponse.redirect(url);
+  //   }
+  //   return NextResponse.next();
+  // }
 }
 
+// Alternative simpler matcher if you want to be more specific:
 export const config = {
-  matcher: ["/me", "/auth/:auth*"],
+  matcher: [
+    "/auth/:path*",
+    "/sign-up",
+    "/sign-in", 
+    "/upload",
+    "/dashboard",
+    "/profile/:path*"
+  ],
 };
