@@ -53,6 +53,9 @@ import {
     FileText,
     Wallet
 } from 'lucide-react';
+import Image from '@/components/ui/image';
+
+import whatsapplogo from '@images/other/whatsapp.png'
 
 type PaymentStatus = 'pending' | 'successful' | 'failed';
 type VerificationStatus = 'verified' | 'not-verified' | 'pending';
@@ -229,7 +232,7 @@ const Dashboard = () => {
                             </div>
 
                             {/* Timer and Quick Stats */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-3 sm:gap-4 lg:gap-4 lg:flex-shrink-0">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 lg:flex gap-3 sm:gap-4 lg:gap-4 lg:flex-shrink-0">
                                 {/* Investment Timer */}
                                 <Card className="p-4 sm:p-5 lg:min-w-[200px] xl:min-w-[220px]">
                                     <div className="flex items-center gap-3">
@@ -312,47 +315,53 @@ const Dashboard = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                                 <Card>
                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">Total Coins</CardTitle>
-                                        <Coins className="h-4 w-4 text-blue-600" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="flex items-center gap-2">
-                                            <div className="text-xl sm:text-2xl font-bold">{userProfile.totalCoins.toLocaleString()}</div>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="h-6 w-6 p-0"
-                                                onClick={() => setShowBalance(!showBalance)}
-                                            >
-                                                {showBalance ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                                            </Button>
+                                        <div>
+                                            <CardTitle className="text-sm font-medium">Total Coins</CardTitle>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <div className="text-xl sm:text-2xl font-bold">{userProfile.totalCoins.toLocaleString()}</div>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-6 w-6 p-0"
+                                                    onClick={() => setShowBalance(!showBalance)}
+                                                >
+                                                    {showBalance ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                                                </Button>
+                                            </div>
+                                            <p className="text-sm opacity-60">
+                                                {showBalance ? formatCurrency(userProfile.totalValue) : '****'}
+                                            </p>
                                         </div>
-                                        <p className="text-xs text-gray-600">
-                                            {showBalance ? formatCurrency(userProfile.totalValue) : '****'}
-                                        </p>
-                                    </CardContent>
+                                        <div>
+                                            <Coins className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+                                        </div>
+                                    </CardHeader>
                                 </Card>
 
                                 <Card>
                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">Active Investments</CardTitle>
-                                        <TrendingUp className="h-4 w-4 text-green-600" />
+                                        <div>
+                                            <CardTitle className="text-sm font-medium">Active Investments</CardTitle>
+                                            <div className="text-xl sm:text-2xl font-bold mt-2">{investments.length}</div>
+                                            <p className="text-xs text-green-600">+5% expected returns</p>
+                                        </div>
+                                        <div>
+                                            <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
+                                        </div>
                                     </CardHeader>
-                                    <CardContent>
-                                        <div className="text-xl sm:text-2xl font-bold">{investments.length}</div>
-                                        <p className="text-xs text-green-600">+5% expected returns</p>
-                                    </CardContent>
                                 </Card>
 
                                 <Card className="sm:col-span-2 lg:col-span-1">
                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">Days Remaining</CardTitle>
-                                        <Timer className="h-4 w-4 text-orange-600" />
+                                        <div>
+                                            <CardTitle className="text-sm font-medium">Days Remaining</CardTitle>
+                                            <div className="text-xl sm:text-2xl font-bold mt-2">{timeLeft.days}</div>
+                                            <p className="text-xs text-orange-600">Next maturity</p>
+                                        </div>
+                                        <div>
+                                            <Timer className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
+                                        </div>
                                     </CardHeader>
-                                    <CardContent>
-                                        <div className="text-xl sm:text-2xl font-bold">{timeLeft.days}</div>
-                                        <p className="text-xs text-orange-600">Next maturity</p>
-                                    </CardContent>
                                 </Card>
                             </div>
 
@@ -811,10 +820,16 @@ const Dashboard = () => {
                 {/* WhatsApp Support Widget */}
                 <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
                     <Button
-                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg"
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-full p-0 bg-transparent hover:bg-green-50 shadow-lg overflow-hidden"
                         onClick={() => window.open('https://wa.me/your-whatsapp-number', '_blank')}
                     >
-                        <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                        <Image
+                            src={whatsapplogo}
+                            alt="WhatsApp"
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-cover rounded-full"
+                        />
                     </Button>
                 </div>
             </div>
