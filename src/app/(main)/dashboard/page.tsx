@@ -418,6 +418,7 @@ const Dashboard = () => {
                                                 value={coinAmount}
                                                 onChange={(e) => setCoinAmount(e.target.value)}
                                                 min="100"
+                                                className="placeholder:opacity-60 placeholder-shown:placeholder:opacity-60"
                                             />
                                             {coinAmount && parseInt(coinAmount) >= 100 && (
                                                 <div className="p-3 sm:p-4 bg-primary rounded-lg">
