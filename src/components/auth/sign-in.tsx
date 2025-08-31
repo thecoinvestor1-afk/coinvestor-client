@@ -14,22 +14,35 @@ export default function SignInComponent() {
     const [isLoading, setIsLoading] = useState(false)
     const [otpSent, setOtpSent] = useState(false)
     const [activeTab, setActiveTab] = useState("email")
+    const [formData, setFormData] = useState({
+        phoneNumber: '',
+        otp: ''
+    })
 
-    const handleSendOTP = async (type: "email" | "phone") => {
-        setIsLoading(true)
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-        setOtpSent(true)
-        setIsLoading(false)
-    }
+    const handleSendOTP = async () => {
+        // Replace with Better Auth endpoint
+        const response = await fetch('/api/auth/send-verification-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                phoneNumber: formData.phoneNumber.trim(),
+                type: 'sign-in'
+            })
+        });
+    };
 
     const handleVerifyOTP = async () => {
-        setIsLoading(true)
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-        setIsLoading(false)
-        // Redirect to dashboard
-    }
+        // Replace with Better Auth phone sign-in endpoint
+        const response = await fetch('/api/auth/sign-in/phone-number', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                phoneNumber: formData.phoneNumber.trim(),
+                otp: formData.otp.trim()
+            })
+        });
+    };
 
     const handleGoogleAuth = async () => {
         setIsLoading(true)

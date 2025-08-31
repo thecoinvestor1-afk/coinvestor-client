@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { Phone, Upload, Camera, RotateCcw, Check, FileText, Eye, EyeOff } from "lucide-react"
 import { toast, Toaster } from "sonner"
-import { usePhoneAuth } from "@/hooks/usePhoneAuth"
+import { authClient } from "@/lib/auth-client"
 
 export default function SignInDocumentsFlow() {
     const [currentStep, setCurrentStep] = useState(1)
@@ -18,8 +18,6 @@ export default function SignInDocumentsFlow() {
     const [showForgotPassword, setShowForgotPassword] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
-    const { sendOTP, verifyOTP, loading: phoneLoading } = usePhoneAuth();
 
     // Form data
     const [formData, setFormData] = useState({
@@ -130,49 +128,66 @@ export default function SignInDocumentsFlow() {
     }
 
     const handleSendOTP = async () => {
-        if (!validateStep1()) {
-            const missingFields = []
-            if (!formData.name.trim()) missingFields.push('Full Name')
-            if (!formData.email.trim()) missingFields.push('Email')
-            if (!formData.phone.trim()) missingFields.push('Phone')
-            if (!formData.password) missingFields.push('Password')
-            if (!formData.confirmPassword) missingFields.push('Confirm Password')
+        if (!validateStep1()) return;
 
-            toast.error(`Please fill in: ${missingFields.join(', ')}`)
-            return
+        setIsLoading(true);
+        try {
+            const { data, error } = await authClient.phoneNumber.sendOtp({
+                phoneNumber: formData.phone.trim()
+            });
+
+            if (error) {
+                toast.error(error.message || 'Failed to send OTP');
+            } else {
+                toast.success('OTP sent successfully!');
+                setCurrentStep(2);
+            }
+        } catch (error) {
+            toast.error('Failed to send OTP');
         }
-
-        // Format phone number
-        let phoneNumber = formData.phone.trim();
-        if (!phoneNumber.startsWith('+')) {
-            phoneNumber = '+91' + phoneNumber; // Adjust country code
-        }
-
-        const result = await sendOTP(phoneNumber);
-
-        if (result.success) {
-            toast.success('OTP sent to your phone number!')
-            setCurrentStep(2)
-        } else {
-            toast.error(result.error || 'Failed to send OTP. Please try again.')
-        }
+        setIsLoading(false);
     }
 
     const handleVerifyOTP = async () => {
-        if (!validateStep2()) {
-            return
-        }
-
-        const result = await verifyOTP(formData.phone, formData.otp);
-
-        if (result.success) {
-            toast.success('Phone number verified!')
-            setCurrentStep(3)
-        } else {
-            toast.error(result.error || 'Invalid OTP. Please try again.')
-        }
+    if (!formData.otp.trim() || formData.otp.length !== 6) {
+        toast.error('Please enter a valid 6-digit OTP');
+        return;
     }
 
+    setIsLoading(true);
+    try {
+        let phoneNumber = formData.phone.trim();
+        if (!phoneNumber.startsWith('+')) {
+            phoneNumber = '+91' + phoneNumber;
+        }
+
+        // Use your custom registration endpoint
+        const response = await fetch('http://localhost:8000/v1/auth/register-phone', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                phoneNumber: phoneNumber,
+                otp: formData.otp.trim(),
+                name: formData.name.trim(),
+                email: formData.email.trim(),
+                password: formData.password
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            toast.success('Registration successful!');
+            setCurrentStep(3);
+        } else {
+            toast.error(result.message || 'Registration failed');
+        }
+    } catch (error) {
+        toast.error('Registration failed. Please try again.');
+    }
+    setIsLoading(false);
+}
     const handleForgotPassword = async () => {
         if (!formData.phone.trim()) {
             toast.error('Please enter your phone number')
