@@ -51,7 +51,8 @@ import {
     QrCode,
     Copy,
     FileText,
-    Wallet
+    Wallet,
+    Hash
 } from 'lucide-react';
 import Image from '@/components/ui/image';
 
@@ -78,6 +79,7 @@ type UserProfile = {
     documentsVerified: VerificationStatus;
     totalCoins: number;
     totalValue: number;
+    coinvestorId: number;
 };
 
 const Dashboard = () => {
@@ -97,7 +99,8 @@ const Dashboard = () => {
         emailVerified: 'verified',
         documentsVerified: 'pending',
         totalCoins: 2500,
-        totalValue: 2625
+        totalValue: 2625,
+        coinvestorId: 12345678
     });
 
     const [investments, setInvestments] = useState<Investment[]>([
@@ -792,14 +795,29 @@ const Dashboard = () => {
                                 {/* Document Verification */}
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle className="text-lg sm:text-xl">Document Verification</CardTitle>
-                                        <CardDescription>Upload and verify your documents</CardDescription>
+                                        <CardTitle className="text-lg sm:text-xl">Identity & Verification</CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div className="space-y-4">
                                             <div className="flex items-center justify-between p-3 sm:p-4 border rounded-lg">
                                                 <div className="flex items-center gap-3 min-w-0">
-                                                    <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+                                                    <Hash className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0 text-primary" />
+                                                    <div className="min-w-0">
+                                                        <p className="font-medium text-sm sm:text-base">Coinvestor ID</p>
+                                                        <p className="text-xs sm:text-sm opacity-50 truncate">{userProfile.coinvestorId || 'Not assigned'}</p>
+                                                    </div>
+                                                </div>
+                                                <Badge className="bg-blue-100 text-blue-800 flex-shrink-0">
+                                                    <span className="text-xs">ID</span>
+                                                </Badge>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                    <CardContent className="space-y-4">
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between p-3 sm:p-4 border rounded-lg">
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0 text-primary" />
                                                     <div className="min-w-0">
                                                         <p className="font-medium text-sm sm:text-base">Identity Proof</p>
                                                         <p className="text-xs sm:text-sm opacity-50 truncate">Aadhar, PAN, or Passport</p>
