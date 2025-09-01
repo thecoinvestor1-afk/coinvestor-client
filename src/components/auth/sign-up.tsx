@@ -10,14 +10,33 @@ import { Phone, Eye, EyeOff } from "lucide-react"
 import { toast, Toaster } from "sonner"
 import { authClient } from "@/lib/auth-client"
 
-export default function SignInDocumentsFlow() {
-    const [currentStep, setCurrentStep] = useState(1)
-    const [isLoading, setIsLoading] = useState(false)
-    const [showForgotPassword, setShowForgotPassword] = useState(false)
-    const [showPassword, setShowPassword] = useState(false)
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+interface FormData {
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    confirmPassword: string;
+    otp: string;
+}
 
-    const [formData, setFormData] = useState({
+interface ValidationErrors {
+    name?: string;
+    email?: string;
+    phone?: string;
+    password?: string;
+    confirmPassword?: string;
+}
+
+type FormField = keyof FormData;
+
+export default function SignInDocumentsFlow() {
+    const [currentStep, setCurrentStep] = useState<number>(1)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [showForgotPassword, setShowForgotPassword] = useState<boolean>(false)
+    const [showPassword, setShowPassword] = useState<boolean>(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
+
+    const [formData, setFormData] = useState<FormData>({
         name: '',
         email: '',
         phone: '',
@@ -26,15 +45,15 @@ export default function SignInDocumentsFlow() {
         otp: ''
     })
 
-    const [errors, setErrors] = useState({})
+    const [errors, setErrors] = useState<ValidationErrors>({})
 
-    const videoRef = useRef(null)
-    const canvasRef = useRef(null)
-    const fileInputRef = useRef(null)
+    const videoRef = useRef<HTMLVideoElement>(null)
+    const canvasRef = useRef<HTMLCanvasElement>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     // STRICT Validation functions
-    const validateStep1 = () => {
-        const newErrors = {}
+    const validateStep1 = (): boolean => {
+        const newErrors: ValidationErrors = {}
         let isValid = true
 
         // Check each field strictly
@@ -79,20 +98,20 @@ export default function SignInDocumentsFlow() {
         return isValid
     }
 
-    const handleInputChange = (field, value) => {
+    const handleInputChange = (field: FormField, value: string): void => {
         setFormData(prev => ({ ...prev, [field]: value }))
         // Clear error when user starts typing
-        if (errors[field]) {
+        if (errors[field as keyof ValidationErrors]) {
             setErrors(prev => ({ ...prev, [field]: '' }))
         }
     }
 
-    const formatPhoneNumber = (phone) => {
+    const formatPhoneNumber = (phone: string): string => {
         const cleaned = phone.trim();
         return cleaned.startsWith('+') ? cleaned : '+91' + cleaned;
     };
 
-    const handleSendOTP = async () => {
+    const handleSendOTP = async (): Promise<void> => {
         if (!validateStep1()) return;
 
         setIsLoading(true);
@@ -128,7 +147,7 @@ export default function SignInDocumentsFlow() {
         setIsLoading(false);
     }
 
-    const handleVerifyOTP = async () => {
+    const handleVerifyOTP = async (): Promise<void> => {
         if (!formData.otp.trim() || formData.otp.length !== 6) {
             toast.error('Please enter a valid 6-digit OTP');
             return;
@@ -182,10 +201,10 @@ export default function SignInDocumentsFlow() {
                                 <div className="w-6 h-6 rounded-full bg-primary-foreground" />
                             </div>
                             <CardTitle className="text-2xl font-bold text-foreground">
-                                {showForgotPassword ? 'Reset Password' : 'Welcome Back'}
+                                {showForgotPassword ? 'Reset Password' : 'Welcome'}
                             </CardTitle>
                             <CardDescription className="text-muted-foreground">
-                                {showForgotPassword ? 'Enter your phone number to reset password' : 'Sign in to your coin investor account'}
+                                {showForgotPassword ? 'Enter your phone number to reset password' : 'Sign up to your coin investor account'}
                             </CardDescription>
                         </CardHeader>
 

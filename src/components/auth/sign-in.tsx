@@ -11,16 +11,28 @@ import { Phone, Mail, Eye, EyeOff } from "lucide-react"
 import { toast, Toaster } from "sonner"
 import { authClient } from "@/lib/auth-client"
 
-export default function SignInComponent() {
-    const [isLoading, setIsLoading] = useState(false)
-    const [otpSent, setOtpSent] = useState(false)
-    const [activeTab, setActiveTab] = useState("email")
-    const [showPassword, setShowPassword] = useState(false)
-    const [showNewPassword, setShowNewPassword] = useState(false)
-    const [showForgotPassword, setShowForgotPassword] = useState(false)
-    const [resetStep, setResetStep] = useState(1) // 1: phone, 2: otp+password
+interface FormData {
+    email: string;
+    password: string;
+    phoneNumber: string;
+    otp: string;
+    resetPhone: string;
+    resetOtp: string;
+    newPassword: string;
+}
 
-    const [formData, setFormData] = useState({
+type FormField = keyof FormData;
+
+export default function SignInComponent() {
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [otpSent, setOtpSent] = useState<boolean>(false)
+    const [activeTab, setActiveTab] = useState<string>("email")
+    const [showPassword, setShowPassword] = useState<boolean>(false)
+    const [showNewPassword, setShowNewPassword] = useState<boolean>(false)
+    const [showForgotPassword, setShowForgotPassword] = useState<boolean>(false)
+    const [resetStep, setResetStep] = useState<number>(1)
+
+    const [formData, setFormData] = useState<FormData>({
         email: '',
         password: '',
         phoneNumber: '',
@@ -30,12 +42,12 @@ export default function SignInComponent() {
         newPassword: ''
     })
 
-    const handleInputChange = (field, value) => {
+    const handleInputChange = (field: FormField, value: string): void => {
         setFormData(prev => ({ ...prev, [field]: value }))
     }
 
     // Email/Password Sign In
-    const handleEmailSignIn = async () => {
+    const handleEmailSignIn = async (): Promise<void> => {
         if (!formData.email.trim() || !formData.password) {
             toast.error('Please enter both email and password')
             return
@@ -60,13 +72,13 @@ export default function SignInComponent() {
         setIsLoading(false)
     }
 
-    const formatPhoneNumber = (phone) => {
+    const formatPhoneNumber = (phone: string): string => {
         const cleaned = phone.trim();
         return cleaned.startsWith('+') ? cleaned : '+91' + cleaned;
     };
 
     // Phone OTP Sign In
-    const handleSendPhoneOTP = async () => {
+    const handleSendPhoneOTP = async (): Promise<void> => {
         if (!formData.phoneNumber.trim()) {
             toast.error('Please enter your phone number')
             return
@@ -79,9 +91,6 @@ export default function SignInComponent() {
             const { data, error } = await authClient.phoneNumber.sendOtp({
                 phoneNumber: phoneNumber
             })
-
-            console.log('API response:', { data, error })
-
             if (error) {
                 toast.error(error.message || 'Failed to send OTP')
             } else {
@@ -94,7 +103,7 @@ export default function SignInComponent() {
         setIsLoading(false)
     }
 
-    const handleVerifyPhoneOTP = async () => {
+    const handleVerifyPhoneOTP = async (): Promise<void> => {
         if (!formData.otp.trim() || formData.otp.length !== 6) {
             toast.error('Please enter a valid 6-digit OTP')
             return
@@ -125,10 +134,7 @@ export default function SignInComponent() {
         setIsLoading(false)
     }
 
-
-
-    // Password Reset with Phone Number
-    const handleRequestPasswordReset = async () => {
+    const handleRequestPasswordReset = async (): Promise<void> => {
         if (!formData.resetPhone.trim()) {
             toast.error('Please enter your phone number')
             return
@@ -153,7 +159,7 @@ export default function SignInComponent() {
         setIsLoading(false)
     }
 
-    const handleResetPassword = async () => {
+    const handleResetPassword = async (): Promise<void> => {
         if (!formData.resetOtp.trim() || formData.resetOtp.length !== 6) {
             toast.error('Please enter a valid 6-digit OTP')
             return
