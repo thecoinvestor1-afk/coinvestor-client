@@ -32,7 +32,6 @@ type FormField = keyof FormData;
 export default function SignInDocumentsFlow() {
     const [currentStep, setCurrentStep] = useState<number>(1)
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const [showForgotPassword, setShowForgotPassword] = useState<boolean>(false)
     const [showPassword, setShowPassword] = useState<boolean>(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
 
@@ -47,16 +46,10 @@ export default function SignInDocumentsFlow() {
 
     const [errors, setErrors] = useState<ValidationErrors>({})
 
-    const videoRef = useRef<HTMLVideoElement>(null)
-    const canvasRef = useRef<HTMLCanvasElement>(null)
-    const fileInputRef = useRef<HTMLInputElement>(null)
-
-    // STRICT Validation functions
     const validateStep1 = (): boolean => {
         const newErrors: ValidationErrors = {}
         let isValid = true
 
-        // Check each field strictly
         if (!formData.name || !formData.name.trim()) {
             newErrors.name = 'Full name is required'
             isValid = false
@@ -100,7 +93,6 @@ export default function SignInDocumentsFlow() {
 
     const handleInputChange = (field: FormField, value: string): void => {
         setFormData(prev => ({ ...prev, [field]: value }))
-        // Clear error when user starts typing
         if (errors[field as keyof ValidationErrors]) {
             setErrors(prev => ({ ...prev, [field]: '' }))
         }
@@ -165,7 +157,7 @@ export default function SignInDocumentsFlow() {
                 toast.error(error.message || 'Invalid OTP');
             } else {
                 toast.success('Phone number verified!');
-                // window.location.href = '/upload';
+                window.location.href = '/upload';
             }
         } catch (error) {
             toast.error('Invalid OTP. Please try again.');
@@ -175,7 +167,6 @@ export default function SignInDocumentsFlow() {
 
     return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
-            {/* YOUR EXACT ORIGINAL ANIMATION */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 {[...Array(8)].map((_, i) => (
                     <div
@@ -193,7 +184,6 @@ export default function SignInDocumentsFlow() {
             </div>
 
             <Card className="w-full max-w-md bg-card/95 backdrop-blur-sm border-border/50">
-                {/* Step 1: Sign Up Form - PHONE ONLY */}
                 {currentStep === 1 && (
                     <>
                         <CardHeader className="text-center space-y-2">
@@ -201,153 +191,119 @@ export default function SignInDocumentsFlow() {
                                 <div className="w-6 h-6 rounded-full bg-primary-foreground" />
                             </div>
                             <CardTitle className="text-2xl font-bold text-foreground">
-                                {showForgotPassword ? 'Reset Password' : 'Welcome'}
+                                Welcome
                             </CardTitle>
                             <CardDescription className="text-muted-foreground">
-                                {showForgotPassword ? 'Enter your phone number to reset password' : 'Sign up to your coin investor account'}
+                                Sign up to your coin investor account
                             </CardDescription>
                         </CardHeader>
 
                         <CardContent className="space-y-6">
-                            {showForgotPassword ? (
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="forgot-phone">Phone Number</Label>
-                                        <Input
-                                            id="forgot-phone"
-                                            type="tel"
-                                            placeholder="+1 (555) 000-0000"
-                                            value={formData.phone}
-                                            onChange={(e) => handleInputChange('phone', e.target.value)}
-                                            className="bg-input border-border"
-                                        />
-                                    </div>
-                                    <Button
-                                        // onClick={handleForgotPassword}
-                                        disabled={isLoading}
-                                        className="w-full bg-primary hover:bg-primary/90"
-                                    >
-                                        {isLoading ? "Sending..." : "Send Reset Code"}
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        onClick={() => setShowForgotPassword(false)}
-                                        className="w-full text-muted-foreground"
-                                    >
-                                        Back to Sign In
-                                    </Button>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="name">Full Name</Label>
+                                    <Input
+                                        id="name"
+                                        type="text"
+                                        placeholder="Enter your full name"
+                                        value={formData.name}
+                                        onChange={(e) => handleInputChange('name', e.target.value)}
+                                        className={`bg-input border-border ${errors.name ? 'border-red-500' : ''}`}
+                                    />
+                                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                                 </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="name">Full Name</Label>
-                                        <Input
-                                            id="name"
-                                            type="text"
-                                            placeholder="Enter your full name"
-                                            value={formData.name}
-                                            onChange={(e) => handleInputChange('name', e.target.value)}
-                                            className={`bg-input border-border ${errors.name ? 'border-red-500' : ''}`}
-                                        />
-                                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-                                    </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="email">Email Address</Label>
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            placeholder="Enter your email"
-                                            value={formData.email}
-                                            onChange={(e) => handleInputChange('email', e.target.value)}
-                                            className={`bg-input border-border ${errors.email ? 'border-red-500' : ''}`}
-                                        />
-                                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="phone">Phone Number</Label>
-                                        <Input
-                                            id="phone"
-                                            type="tel"
-                                            placeholder="+1 (555) 000-0000"
-                                            value={formData.phone}
-                                            onChange={(e) => handleInputChange('phone', e.target.value)}
-                                            className={`bg-input border-border ${errors.phone ? 'border-red-500' : ''}`}
-                                        />
-                                        {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="password">Password</Label>
-                                        <div className="relative">
-                                            <Input
-                                                id="password"
-                                                type={showPassword ? "text" : "password"}
-                                                placeholder="Create a password"
-                                                value={formData.password}
-                                                onChange={(e) => handleInputChange('password', e.target.value)}
-                                                className={`bg-input border-border pr-10 ${errors.password ? 'border-red-500' : ''}`}
-                                            />
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                            >
-                                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                            </Button>
-                                        </div>
-                                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="confirmPassword">Confirm Password</Label>
-                                        <div className="relative">
-                                            <Input
-                                                id="confirmPassword"
-                                                type={showConfirmPassword ? "text" : "password"}
-                                                placeholder="Confirm your password"
-                                                value={formData.confirmPassword}
-                                                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                                                className={`bg-input border-border pr-10 ${errors.confirmPassword ? 'border-red-500' : ''}`}
-                                            />
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            >
-                                                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                            </Button>
-                                        </div>
-                                        {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
-                                    </div>
-
-                                    <Button
-                                        onClick={handleSendOTP}
-                                        disabled={isLoading || !formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.password || !formData.confirmPassword}
-                                        className="w-full bg-primary hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed"
-                                    >
-                                        {isLoading ? "Sending OTP..." : "Send SMS OTP"}
-                                    </Button>
+                                <div className="space-y-2">
+                                    <Label htmlFor="email">Email Address</Label>
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        placeholder="Enter your email"
+                                        value={formData.email}
+                                        onChange={(e) => handleInputChange('email', e.target.value)}
+                                        className={`bg-input border-border ${errors.email ? 'border-red-500' : ''}`}
+                                    />
+                                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                                 </div>
-                            )}
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="phone">Phone Number</Label>
+                                    <Input
+                                        id="phone"
+                                        type="tel"
+                                        placeholder="+1 (555) 000-0000"
+                                        value={formData.phone}
+                                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                                        className={`bg-input border-border ${errors.phone ? 'border-red-500' : ''}`}
+                                    />
+                                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="password">Password</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="password"
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="Create a password"
+                                            value={formData.password}
+                                            onChange={(e) => handleInputChange('password', e.target.value)}
+                                            className={`bg-input border-border pr-10 ${errors.password ? 'border-red-500' : ''}`}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
+                                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="confirmPassword"
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            placeholder="Confirm your password"
+                                            value={formData.confirmPassword}
+                                            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                                            className={`bg-input border-border pr-10 ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        >
+                                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
+                                    {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+                                </div>
+
+                                <Button
+                                    onClick={handleSendOTP}
+                                    disabled={isLoading || !formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.password || !formData.confirmPassword}
+                                    className="w-full bg-primary hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed"
+                                >
+                                    {isLoading ? "Sending OTP..." : "Send SMS OTP"}
+                                </Button>
+                            </div>
                         </CardContent>
 
                         <CardFooter className="flex flex-col space-y-4">
-                            {!showForgotPassword && (
-                                <>
-                                    <div className="text-center text-sm text-muted-foreground">
-                                        Already have an account?{" "}
-                                        <Link href="/sign-in" className="text-primary hover:underline font-medium">
-                                            Sign In
-                                        </Link>
-                                    </div>
-                                </>
-                            )}
+                            <div className="text-center text-sm text-muted-foreground">
+                                Already have an account?{" "}
+                                <Link href="/sign-in" className="text-primary hover:underline font-medium">
+                                    Sign In
+                                </Link>
+                            </div>
                         </CardFooter>
                     </>
                 )}

@@ -46,7 +46,6 @@ export default function SignInComponent() {
         setFormData(prev => ({ ...prev, [field]: value }))
     }
 
-    // Email/Password Sign In
     const handleEmailSignIn = async (): Promise<void> => {
         if (!formData.email.trim() || !formData.password) {
             toast.error('Please enter both email and password')
@@ -64,7 +63,7 @@ export default function SignInComponent() {
                 toast.error(error.message || 'Invalid email or password')
             } else {
                 toast.success('Sign in successful!')
-                window.location.href = '/upload'
+                window.location.href = '/dashboard'
             }
         } catch (error) {
             toast.error('Sign in failed. Please try again.')
@@ -77,7 +76,6 @@ export default function SignInComponent() {
         return cleaned.startsWith('+') ? cleaned : '+91' + cleaned;
     };
 
-    // Phone OTP Sign In
     const handleSendPhoneOTP = async (): Promise<void> => {
         if (!formData.phoneNumber.trim()) {
             toast.error('Please enter your phone number')
@@ -126,7 +124,7 @@ export default function SignInComponent() {
                 toast.error(error.message || 'Invalid OTP')
             } else {
                 toast.success('Sign in successful!')
-                window.location.href = '/upload'
+                window.location.href = '/dashboard'
             }
         } catch (error) {
             toast.error('Invalid OTP. Please try again.')
