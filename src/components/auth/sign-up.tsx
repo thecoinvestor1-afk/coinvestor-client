@@ -87,6 +87,11 @@ export default function SignInDocumentsFlow() {
         }
     }
 
+    const formatPhoneNumber = (phone) => {
+        const cleaned = phone.trim();
+        return cleaned.startsWith('+') ? cleaned : '+91' + cleaned;
+    };
+
     const handleSendOTP = async () => {
         if (!validateStep1()) return;
 
@@ -105,8 +110,10 @@ export default function SignInDocumentsFlow() {
                 return;
             }
 
+            const phoneNumber = formatPhoneNumber(formData.phone);
+
             const { data, error } = await authClient.phoneNumber.sendOtp({
-                phoneNumber: formData.phone.trim()
+                phoneNumber: phoneNumber
             });
 
             if (error) {
@@ -126,11 +133,11 @@ export default function SignInDocumentsFlow() {
             toast.error('Please enter a valid 6-digit OTP');
             return;
         }
-
+        const phoneNumber = formatPhoneNumber(formData.phone);
         setIsLoading(true);
         try {
             const { data, error } = await authClient.phoneNumber.verify({
-                phoneNumber: formData.phone.trim(),
+                phoneNumber: phoneNumber,
                 code: formData.otp.trim(),
                 updatePhoneNumber: true
             });
