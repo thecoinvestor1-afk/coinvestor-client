@@ -17,25 +17,66 @@ export async function middleware(request: NextRequest) {
       },
     );
 
+    // console.log("session: ", session);
+
     const url = request.nextUrl.clone();
     const pathname = url.pathname;
 
     // If user has a valid session (Better Auth returns session object with user property)
     if (session?.user && session?.session) {
-      // Check if user is trying to access auth pages when already logged in
-      if (pathname.startsWith('/auth/') || pathname === '/sign-up' || pathname === '/sign-in') {
-        // Redirect authenticated users away from auth pages to /upload
-        url.pathname = '/upload';
+      const user = session.user;
+      
+      // Check phone number verification status
+      if (!user.phoneNumberVerified) {
+        // Keep user on sign-up, sign-in, or homepage only
+        if (pathname === '/sign-up' || pathname === '/sign-in' || pathname === '/' || pathname.startsWith('/auth/')) {
+          return NextResponse.next();
+        }
+        
+        // Redirect unverified users to homepage from any other route
+        url.pathname = '/';
         return NextResponse.redirect(url);
       }
-      
-      // Allow access to protected routes
-      return NextResponse.next();
+
+      // Phone number is verified - handle redirects based on redirectUrl
+      if (user.phoneNumberVerified) {
+        // If user is trying to access auth pages when already logged in and verified
+        if (pathname.startsWith('/auth/') || pathname === '/sign-up' || pathname === '/sign-in') {
+          // Redirect based on redirectUrl field
+          if (user.redirectUrl === 'upload') {
+            url.pathname = '/upload';
+          } else if (user.redirectUrl === 'dashboard') {
+            url.pathname = '/dashboard';
+          } else {
+            // Default redirect if redirectUrl is something else
+            url.pathname = '/dashboard';
+          }
+          return NextResponse.redirect(url);
+        }
+
+        // For verified users, enforce redirect URL restrictions
+        if (user.redirectUrl === 'upload') {
+          // User should only be on /upload route
+          if (pathname !== '/upload') {
+            url.pathname = '/upload';
+            return NextResponse.redirect(url);
+          }
+        } else if (user.redirectUrl === 'dashboard') {
+          // User should be on /dashboard route
+          if (pathname !== '/dashboard') {
+            url.pathname = '/dashboard';
+            return NextResponse.redirect(url);
+          }
+        }
+        
+        // Allow access to the current route if it matches their redirectUrl
+        return NextResponse.next();
+      }
     }
 
     // If no session (user not authenticated)
-    // Allow access to auth pages
-    if (pathname.startsWith('/auth/') || pathname === '/sign-up' || pathname === '/sign-in') {
+    // Allow access to auth pages and homepage
+    if (pathname.startsWith('/auth/') || pathname === '/sign-up' || pathname === '/sign-in' || pathname === '/') {
       return NextResponse.next();
     }
 
@@ -45,7 +86,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Allow access to public routes (home, about, etc.)
+    // Allow access to other public routes
     return NextResponse.next();
 
   } catch (error) {
@@ -53,7 +94,8 @@ export async function middleware(request: NextRequest) {
     // On error, redirect to sign-in as fallback
     if (!request.nextUrl.pathname.startsWith('/auth/') && 
         request.nextUrl.pathname !== '/sign-in' && 
-        request.nextUrl.pathname !== '/sign-up') {
+        request.nextUrl.pathname !== '/sign-up' &&
+        request.nextUrl.pathname !== '/') {
       const url = request.nextUrl.clone();
       url.pathname = '/sign-in';
       return NextResponse.redirect(url);

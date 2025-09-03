@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback } from 'react'
 import { Upload, Camera, Check, RotateCcw, FileText } from 'lucide-react'
+import { uploadFile } from '@/hooks/cloudinary'
 
 // Toast notification utility
 const toast = {
@@ -250,21 +251,25 @@ export default function UploadFileComponent() {
         setIsLoading(true)
 
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            // Upload Aadhaar card first
+            console.log('Uploading Aadhaar card...')
+            const aadhaarResponse = await uploadFile(adhaarFile, 'aadhaar')
+            console.log('Aadhaar uploaded:', aadhaarResponse)
 
-            // Prepare form data for API
-            const formData = new FormData()
-            formData.append('adhaar', adhaarFile)
-            formData.append('selfie', selfieCapture, 'selfie.jpg')
-
-            // TODO: Replace with actual API call
-            // const response = await fetch('/api/upload-documents', {
-            //     method: 'POST',
-            //     body: formData
-            // })
+            // Upload selfie/photo
+            console.log('Uploading selfie...')
+            const photoResponse = await uploadFile(selfieCapture, 'photo')
+            console.log('Photo uploaded:', photoResponse)
 
             toast.success('Documents uploaded successfully!')
+
+            // Check if both files are uploaded and redirect accordingly
+            if (photoResponse.bothFilesUploaded) {
+                console.log('Both files uploaded, redirecting to:', photoResponse.redirectUrl)
+                // You can redirect here if needed
+                // window.location.href = `/${photoResponse.redirectUrl}`
+            }
+
             console.log('Upload completed successfully')
         } catch (error) {
             console.error('Upload error:', error)
@@ -273,6 +278,7 @@ export default function UploadFileComponent() {
             setIsLoading(false)
         }
     }, [adhaarFile, selfieCapture])
+
 
     return (
         <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
