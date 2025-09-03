@@ -238,7 +238,6 @@ export default function UploadFileComponent() {
 
     // Document submission
     const handleSubmitDocuments = useCallback(async (): Promise<void> => {
-        // Validation
         if (!adhaarFile) {
             toast.error('Please upload your Aadhaar card first')
             return
@@ -252,22 +251,14 @@ export default function UploadFileComponent() {
 
         try {
             // Upload Aadhaar card first
-            console.log('Uploading Aadhaar card...')
             const aadhaarResponse = await uploadFile(adhaarFile, 'aadhaar')
-            console.log('Aadhaar uploaded:', aadhaarResponse)
-
-            // Upload selfie/photo
-            console.log('Uploading selfie...')
             const photoResponse = await uploadFile(selfieCapture, 'photo')
-            console.log('Photo uploaded:', photoResponse)
 
             toast.success('Documents uploaded successfully!')
 
             // Check if both files are uploaded and redirect accordingly
             if (photoResponse.bothFilesUploaded) {
-                console.log('Both files uploaded, redirecting to:', photoResponse.redirectUrl)
-                // You can redirect here if needed
-                // window.location.href = `/${photoResponse.redirectUrl}`
+                window.location.href = `/${photoResponse.redirectUrl}`
             }
 
             console.log('Upload completed successfully')
