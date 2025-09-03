@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Card,
     CardContent,
@@ -75,11 +75,32 @@ type UserProfile = {
     name: string;
     email: string;
     phone: string;
-    emailVerified: VerificationStatus;
+    phoneNumberVerified: VerificationStatus;
     documentsVerified: VerificationStatus;
     totalCoins: number;
     totalValue: number;
     coinvestorId: number;
+};
+
+type DashboardApiResponse = {
+    success: boolean;
+    data: {
+        userProfile: UserProfile;
+        investments: {
+            id: string;
+            amount: number;
+            startDate: string; // API returns string dates
+            daysLeft: number;
+            currentValue: number;
+            projectedValue: number;
+            status: string;
+        }[];
+        stats: {
+            activeInvestments: number;
+            nextMaturityDays: number | null;
+            totalCurrentValue: number;
+        };
+    };
 };
 
 const DashboardPageComponent = () => {
@@ -89,43 +110,59 @@ const DashboardPageComponent = () => {
     const [paymentStep, setPaymentStep] = useState(1);
     const [showBalance, setShowBalance] = useState(false);
     const [withdrawalAmount, setWithdrawalAmount] = useState('');
-    const [withdrawalReason, setWithdrawalReason] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [investments, setInvestments] = useState<Investment[]>([]);
+    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
 
     // Mock data - replace with API calls
-    const [userProfile, setUserProfile] = useState<UserProfile>({
-        name: 'John Doe',
-        email: 'john@example.com',
-        phone: '+91 98765 43210',
-        emailVerified: 'verified',
-        documentsVerified: 'pending',
-        totalCoins: 2500,
-        totalValue: 2625,
-        coinvestorId: 12345678
-    });
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch('http://localhost:8000/v1/profile/dashboard', {
+                    method: 'GET',
+                    credentials: 'include',
+                });
 
-    const [investments, setInvestments] = useState<Investment[]>([
-        {
-            id: '1',
-            amount: 1000,
-            startDate: new Date('2024-08-01'),
-            daysLeft: 45,
-            currentValue: 1025,
-            projectedValue: 1050,
-            status: 'successful'
-        },
-        {
-            id: '2',
-            amount: 1500,
-            startDate: new Date('2024-08-15'),
-            daysLeft: 59,
-            currentValue: 1537.5,
-            projectedValue: 1575,
-            status: 'successful'
-        }
-    ]);
+                const result = await response.json();
 
-    // Timer logic for active investments
-    const [timeLeft, setTimeLeft] = useState({ days: 45, hours: 12, minutes: 30 });
+                if (result.success) {
+                    setUserProfile(result.data.userProfile);
+
+                    const formattedInvestments: Investment[] = result.data.investments.map((inv: Investment) => ({
+                        id: inv.id,
+                        amount: inv.amount,
+                        startDate: new Date(inv.startDate),
+                        daysLeft: inv.daysLeft,
+                        currentValue: inv.currentValue,
+                        projectedValue: inv.projectedValue,
+                        status: inv.status as PaymentStatus
+                    }));
+
+                    setInvestments(formattedInvestments);
+
+                    // Set next maturity timer
+                    if (result.data.stats.nextMaturityDays) {
+                        setTimeLeft({
+                            days: result.data.stats.nextMaturityDays,
+                            hours: 12,
+                            minutes: 30
+                        });
+                    }
+                } else {
+                    toast.error("Failed to load dashboard data");
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                toast.error("Failed to load dashboard data");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -139,17 +176,110 @@ const DashboardPageComponent = () => {
         toast.success("Coins purchase initiated!");
     };
 
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const handleUploadProof = async () => {
-        toast.success("Payment proof uploaded successfully! We'll verify it within 24 hours.");
-        setPaymentStep(1);
-        setCoinAmount('');
-        setPaymentMethod('');
+        const file = fileInputRef.current?.files?.[0];
+
+        if (!file) {
+            toast.error("Please select a payment proof file");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('amount', coinAmount);
+        formData.append('paymentMethod', paymentMethod);
+        formData.append('proofOfPayment', file);
+
+        try {
+            const response = await fetch('http://localhost:8000/v1/profile/buy', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include',
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                toast.success("Purchase request submitted successfully! We'll verify it within 24 hours.");
+                setPaymentStep(1);
+                setCoinAmount('');
+                setPaymentMethod('');
+                await refreshDashboardData();
+            } else {
+                toast.error(data.message || "Failed to submit purchase request");
+            }
+        } catch (error) {
+            console.error('Error submitting purchase request:', error);
+            toast.error("Failed to submit purchase request");
+        }
     };
 
     const handleWithdrawalRequest = async () => {
-        toast.success("Withdrawal request submitted for admin approval!");
-        setWithdrawalAmount('');
-        setWithdrawalReason('');
+        console.log("=== WITHDRAWAL REQUEST STARTED ===");
+        console.log("Amount:", withdrawalAmount);
+
+        if (!withdrawalAmount || parseInt(withdrawalAmount) < 100) {
+            console.log("Validation failed - amount too small");
+            toast.error("Minimum withdrawal amount is ₹100");
+            return;
+        }
+
+        try {
+            console.log("Making fetch request...");
+            const response = await fetch('http://localhost:8000/v1/profile/withdraw', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    amount: parseInt(withdrawalAmount)
+                }),
+            });
+
+            console.log("Response status:", response.status);
+            const data = await response.json();
+            console.log("Response data:", data);
+
+            if (data.success) {
+                toast.success("Withdrawal request submitted for admin approval!");
+                setWithdrawalAmount('');
+                await refreshDashboardData();
+            } else {
+                toast.error(data.message || "Failed to submit withdrawal request");
+            }
+        } catch (error) {
+            console.error('Error submitting withdrawal request:', error);
+            toast.error("Failed to submit withdrawal request");
+        }
+    };
+
+    const refreshDashboardData = async () => {
+        try {
+            const response = await fetch('http://localhost:8000/v1/profile/dashboard', {
+                method: 'GET',
+                credentials: 'include',
+            });
+
+            const result: DashboardApiResponse = await response.json();
+
+            if (result.success) {
+                setUserProfile(result.data.userProfile);
+                const formattedInvestments: Investment[] = result.data.investments.map(inv => ({
+                    id: inv.id,
+                    amount: inv.amount,
+                    startDate: new Date(inv.startDate),
+                    daysLeft: inv.daysLeft,
+                    currentValue: inv.currentValue,
+                    projectedValue: inv.projectedValue,
+                    status: inv.status as PaymentStatus
+                }));
+                setInvestments(formattedInvestments);
+            }
+        } catch (error) {
+            console.error('Error refreshing dashboard data:', error);
+        }
     };
 
     const handleProfileUpdate = async () => {
@@ -217,6 +347,17 @@ const DashboardPageComponent = () => {
         </Card>
     );
 
+    if (loading || !userProfile) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-lg">Loading dashboard...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-custom bg-fixed bg-cover bg-center bg-no-repeat w-full">
             <div className="min-h-screen container mx-auto">
@@ -227,7 +368,7 @@ const DashboardPageComponent = () => {
                             {/* Welcome Section */}
                             <div className="text-center sm:text-left lg:flex-1">
                                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">
-                                    Welcome back, {userProfile.name}!
+                                    Welcome back, {userProfile?.name}!
                                 </h1>
                                 <p className="opacity-70 mt-1 text-sm sm:text-base">
                                     Manage your investments and track your earnings
@@ -261,7 +402,7 @@ const DashboardPageComponent = () => {
                                             <p className="text-xs sm:text-sm opacity-50 mb-1">Total Balance</p>
                                             <div className="flex items-center gap-2">
                                                 <p className="text-base sm:text-lg lg:text-xl font-bold text-green-600 truncate">
-                                                    {showBalance ? formatCurrency(userProfile.totalValue) : '****'}
+                                                    {showBalance ? formatCurrency(userProfile?.totalValue) : '****'}
                                                 </p>
                                                 <Button
                                                     variant="ghost"
@@ -321,7 +462,7 @@ const DashboardPageComponent = () => {
                                         <div>
                                             <CardTitle className="text-sm font-medium">Total Coins</CardTitle>
                                             <div className="flex items-center gap-2 mt-2">
-                                                <div className="text-xl sm:text-2xl font-bold">{userProfile.totalCoins.toLocaleString()}</div>
+                                                <div className="text-xl sm:text-2xl font-bold">{userProfile?.totalCoins.toLocaleString()}</div>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
@@ -332,7 +473,7 @@ const DashboardPageComponent = () => {
                                                 </Button>
                                             </div>
                                             <p className="text-sm opacity-60">
-                                                {showBalance ? formatCurrency(userProfile.totalValue) : '****'}
+                                                {showBalance ? formatCurrency(userProfile?.totalValue) : '****'}
                                             </p>
                                         </div>
                                         <div>
@@ -593,18 +734,21 @@ const DashboardPageComponent = () => {
                                                     type="file"
                                                     accept="image/*,.pdf"
                                                     className="hidden"
-                                                    id="payment-proof"
+                                                    ref={fileInputRef}
                                                     onChange={(e) => {
                                                         if (e.target.files?.[0]) {
                                                             toast.success(`File "${e.target.files[0].name}" selected`);
                                                         }
                                                     }}
                                                 />
-                                                <Label htmlFor="payment-proof">
-                                                    <Button variant="outline" size="sm" asChild>
-                                                        <span className="cursor-pointer text-xs sm:text-sm">Choose File</span>
-                                                    </Button>
-                                                </Label>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    type="button"
+                                                >
+                                                    <span className="cursor-pointer text-xs sm:text-sm">Choose File</span>
+                                                </Button>
                                             </div>
                                             <div className="text-center">
                                                 <p className="text-xs sm:text-sm opacity-50">Amount: {formatCurrency(parseInt(coinAmount || '0'))}</p>
@@ -710,7 +854,7 @@ const DashboardPageComponent = () => {
                                             onChange={(e) => setWithdrawalAmount(e.target.value)}
                                         />
                                         <p className="text-xs sm:text-sm opacity-60">
-                                            Available balance: {formatCurrency(userProfile.totalValue)}
+                                            Available balance: {formatCurrency(userProfile?.totalValue)}
                                         </p>
                                     </div>
 
@@ -724,31 +868,13 @@ const DashboardPageComponent = () => {
                                     </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button
-                                                className="w-full bg-primary"
-                                                disabled={!withdrawalAmount || parseInt(withdrawalAmount || '0') < 100}
-                                            >
-                                                Submit Withdrawal Request
-                                            </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent className="mx-4 sm:mx-0 max-w-lg">
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle className="text-base sm:text-lg">Confirm Withdrawal Request</AlertDialogTitle>
-                                                <AlertDialogDescription className="text-sm">
-                                                    Are you sure you want to request withdrawal of {formatCurrency(parseInt(withdrawalAmount || '0'))}?
-                                                    This action will be sent for admin approval.
-                                                </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
-                                                <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={handleWithdrawalRequest} className="w-full sm:w-auto">
-                                                    Confirm Request
-                                                </AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
+                                    <Button
+                                        className="w-full bg-primary"
+                                        disabled={!withdrawalAmount || parseInt(withdrawalAmount || '0') < 100}
+                                        onClick={handleWithdrawalRequest}
+                                    >
+                                        Submit Withdrawal Request (Test)
+                                    </Button>
                                 </CardFooter>
                             </Card>
                         </TabsContent>
@@ -776,17 +902,19 @@ const DashboardPageComponent = () => {
                                                 <div className="p-3 bg-secondary rounded-md border flex-1">
                                                     <p className="text-sm font-semibold text-black">{userProfile.email}</p>
                                                 </div>
-                                                <Badge className={`${getStatusColor(userProfile.emailVerified)} self-start whitespace-nowrap`}>
-                                                    {getStatusIcon(userProfile.emailVerified)}
-                                                    <span className="ml-1 capitalize text-xs">{userProfile.emailVerified}</span>
-                                                </Badge>
                                             </div>
                                         </div>
 
                                         <div className="space-y-2">
                                             <Label htmlFor="phone">Phone Number</Label>
-                                            <div className="p-3 bg-secondary rounded-md border">
-                                                <p className="text-sm font-semibold text-black">{userProfile.phone}</p>
+                                            <div className="flex flex-col sm:flex-row gap-2">
+                                                <div className="p-3 bg-secondary rounded-md border flex-1">
+                                                    <p className="text-sm font-semibold text-black">{userProfile.phone}</p>
+                                                </div>
+                                                <Badge className={`${getStatusColor(userProfile.phoneNumberVerified)} self-start whitespace-nowrap`}>
+                                                    {getStatusIcon(userProfile.phoneNumberVerified)}
+                                                    <span className="ml-1 capitalize text-xs">{userProfile.phoneNumberVerified}</span>
+                                                </Badge>
                                             </div>
                                         </div>
                                     </CardContent>
