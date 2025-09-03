@@ -128,6 +128,26 @@ export default function UploadFileComponent() {
     const [faceDetected, setFaceDetected] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [cameraError, setCameraError] = useState<string | null>(null)
+    const [identityFile, setIdentityFile] = useState<File | null>(null) // Changed from adhaarFile
+    const [identityType, setIdentityType] = useState<'aadhar' | 'pan'>('aadhar')
+
+    const handleIdentityUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>): void => {
+        const file = event.target.files?.[0]
+        if (!file) return
+
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please upload a valid image file')
+            return
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('File size should be less than 10MB')
+            return
+        }
+
+        setIdentityFile(file)
+        toast.success('Identity document uploaded successfully!')
+    }, [])
 
     // Refs
     const webcamRef = useRef<WebcamRef>(null)
@@ -215,31 +235,10 @@ export default function UploadFileComponent() {
         startCamera()
     }, [startCamera])
 
-    // File upload handler
-    const handleAdhaarUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>): void => {
-        const file = event.target.files?.[0]
-        if (!file) return
-
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            toast.error('Please upload a valid image file')
-            return
-        }
-
-        // Validate file size (10MB)
-        if (file.size > 10 * 1024 * 1024) {
-            toast.error('File size should be less than 10MB')
-            return
-        }
-
-        setAdhaarFile(file)
-        toast.success('Aadhaar uploaded successfully!')
-    }, [])
-
     // Document submission
     const handleSubmitDocuments = useCallback(async (): Promise<void> => {
-        if (!adhaarFile) {
-            toast.error('Please upload your Aadhaar card first')
+        if (!identityFile) {
+            toast.error('Please upload your identity document first')
             return
         }
         if (!selfieCapture) {
@@ -250,8 +249,8 @@ export default function UploadFileComponent() {
         setIsLoading(true)
 
         try {
-            // Upload Aadhaar card first
-            const aadhaarResponse = await uploadFile(adhaarFile, 'aadhaar')
+            // Upload identity document first with type
+            const identityResponse = await uploadFile(identityFile, 'identityProof', identityType)
             const photoResponse = await uploadFile(selfieCapture, 'photo')
 
             toast.success('Documents uploaded successfully!')
@@ -268,7 +267,7 @@ export default function UploadFileComponent() {
         } finally {
             setIsLoading(false)
         }
-    }, [adhaarFile, selfieCapture])
+    }, [identityFile, selfieCapture, identityType])
 
 
     return (
@@ -279,32 +278,59 @@ export default function UploadFileComponent() {
                     <FileText className="w-6 h-6 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">Upload Documents</h2>
-                <p className="text-gray-600">Please upload your Aadhaar and take a selfie</p>
+                <p className="text-gray-600">Please upload your identity document and take a selfie</p>
             </div>
 
             <div className="space-y-6">
                 {/* Aadhaar Upload Section */}
                 <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-700">Aadhaar Card</label>
+                    <label className="text-sm font-medium text-gray-700">Identity Document</label>
+
+                    {/* Document Type Selection */}
+                    <div className="flex gap-4 mb-3 text-gray-700">
+                        <label className="flex items-center ">
+                            <input
+                                type="radio"
+                                name="identityType"
+                                value="aadhar"
+                                checked={identityType === 'aadhar'}
+                                onChange={(e) => setIdentityType(e.target.value as 'aadhar' | 'pan')}
+                                className="mr-2"
+                            />
+                            Aadhaar Card
+                        </label>
+                        <label className="flex items-center">
+                            <input
+                                type="radio"
+                                name="identityType"
+                                value="pan"
+                                checked={identityType === 'pan'}
+                                onChange={(e) => setIdentityType(e.target.value as 'aadhar' | 'pan')}
+                                className="mr-2"
+                            />
+                            PAN Card
+                        </label>
+                    </div>
+
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
-                        {!adhaarFile ? (
+                        {!identityFile ? (
                             <div
                                 className="cursor-pointer"
                                 onClick={() => fileInputRef.current?.click()}
                             >
                                 <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                                <p className="text-sm text-gray-600 mb-1">Click to upload Aadhaar</p>
+                                <p className="text-sm text-gray-600 mb-1">Click to upload {identityType === 'aadhar' ? 'Aadhaar' : 'PAN'}</p>
                                 <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
                             </div>
                         ) : (
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Check className="w-5 h-5 text-green-500" />
-                                    <span className="text-sm text-gray-900">{adhaarFile.name}</span>
+                                    <span className="text-sm text-gray-900">{identityFile.name}</span>
                                 </div>
                                 <button
                                     className="text-red-500 hover:text-red-700 text-sm"
-                                    onClick={() => setAdhaarFile(null)}
+                                    onClick={() => setIdentityFile(null)}
                                     type="button"
                                 >
                                     Remove
@@ -317,7 +343,7 @@ export default function UploadFileComponent() {
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        onChange={handleAdhaarUpload}
+                        onChange={handleIdentityUpload}
                     />
                 </div>
 
@@ -452,7 +478,7 @@ export default function UploadFileComponent() {
                 </div>
 
                 {/* Submit Button */}
-                {adhaarFile && selfieCapture && (
+                {identityFile && selfieCapture && (
                     <button
                         onClick={handleSubmitDocuments}
                         disabled={isLoading}
@@ -464,13 +490,13 @@ export default function UploadFileComponent() {
                 )}
 
                 {/* Status Message */}
-                {(!adhaarFile || !selfieCapture) && (
+                {(!identityFile || !selfieCapture) && (
                     <div className="w-full p-3 bg-gray-50 rounded-lg text-center">
                         <p className="text-sm text-gray-600">
-                            {!adhaarFile && !selfieCapture
-                                ? 'Upload Aadhaar and take selfie to continue'
-                                : !adhaarFile
-                                    ? 'Upload Aadhaar to continue'
+                            {!identityFile && !selfieCapture
+                                ? 'Upload identity document and take selfie to continue'
+                                : !identityFile
+                                    ? 'Upload identity document to continue'
                                     : 'Take selfie to continue'
                             }
                         </p>
